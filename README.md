@@ -1,2 +1,2 @@
 # autofirework
-### Automatically redeploy rockets after flight duration runs out
+### Automatically redeploy rockets after speed goes below specified amount
