@@ -1,0 +1,13 @@
+{
+  "Plugin-Class": "tilley.rocket.Autofirework",
+  "Name": "${project.plugin_name}",
+  "Version": "${project.plugin_version}",
+  "Description": "Automatically redeploy rockets when player goes below certain speed",
+  "URL": "",
+  "Authors": [
+    "tilley"
+  ],
+  "Minecraft-Versions": [
+    "1.21.4"
+  ]
+}
