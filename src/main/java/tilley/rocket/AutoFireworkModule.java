@@ -12,15 +12,22 @@ import org.rusherhack.client.api.feature.module.ToggleableModule;
 import org.rusherhack.client.api.utils.InventoryUtils;
 import org.rusherhack.client.api.utils.WorldUtils;
 import org.rusherhack.core.event.subscribe.Subscribe;
+import org.rusherhack.core.setting.BooleanSetting;
 import org.rusherhack.core.setting.NumberSetting;
 
 public class AutoFireworkModule extends ToggleableModule {
-    private final NumberSetting<Float> minSpeed = new NumberSetting<>("MinSpeed", "Fires a rocket when the player’s speed drops below this value", 20f, 1f, 34f).incremental(1f);
+    private final BooleanSetting underSpeed = new BooleanSetting("UnderSpeed", "Deploy rockets when player speed drops below a value", true);
+    private final NumberSetting<Float> minSpeed = new NumberSetting<>("MinSpeed", "Value to deploy rocket at", 20f, 1f, 34f).incremental(1f);
+    private final BooleanSetting underHeight = new BooleanSetting("UnderHeight", "Deploy rockets when player height (y coord) drops below a value", false);
+    private final NumberSetting<Float> minHeight = new NumberSetting<>("MinSpeed", "Y coordinate to deploy rocket when player drops below", 120f, 1f, 340f).incremental(1f);
+
     private boolean waitingForFirework = false;
 
     public AutoFireworkModule() {
-        super("AutoFirework", "Automatically redeploy fireworks when player drops below a certain speed", ModuleCategory.MOVEMENT);
-        this.registerSettings(minSpeed);
+        super("AutoFirework", "Automatically redeploy fireworks when player drops below a certain speed or height", ModuleCategory.MOVEMENT);
+        this.registerSettings(underSpeed, underHeight);
+        underSpeed.addSubSettings(minSpeed);
+        underHeight.addSubSettings(minHeight);
     }
 
     @Subscribe
@@ -28,7 +35,10 @@ public class AutoFireworkModule extends ToggleableModule {
         if (mc.player == null || mc.gameMode == null) return;
         double speed = mc.player.getDeltaMovement().length() * RusherHackAPI.getServerState().getTPS();
 
-        if (mc.player.isFallFlying() && speed < minSpeed.getValue()) {
+        if (mc.player.isFallFlying() &&
+           ((speed < minSpeed.getValue()) && underSpeed.getValue() ||
+             mc.player.getY() < minHeight.getValue() && underHeight.getValue())) {
+
             if (waitingForFirework) {
                 if (hasActiveFirework()) waitingForFirework = false;
                 return;
